@@ -13,6 +13,7 @@ public class MovieMapper {
         movie.setMovieDuration(movieDto.getMovieDuration());
         movie.setMovieType(movieDto.getMovieType());
         movie.setStatus(movieDto.getStatus());
+        movie.setImageUrl(movieDto.getImageUrl());
         return movie;
     }
 
@@ -25,6 +26,7 @@ public class MovieMapper {
         movieResponse.setMovieType(movie.getMovieType());
         movieResponse.setStatus(movie.getStatus());
         movieResponse.setDeleteFlag(movie.getDeleteFlag());
+        movieResponse.setImageUrl(movie.getImageUrl());
         return movieResponse;
     }
 }

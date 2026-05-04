@@ -2,13 +2,15 @@ package com.soft.movie_ticket_booking_system.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.soft.movie_ticket_booking_system.dto.request.MovieRequest;
 import com.soft.movie_ticket_booking_system.dto.response.MovieResponse;
 import com.soft.movie_ticket_booking_system.dto.response.PageResponse;
 
 public interface MovieService {
 
-    MovieResponse createMovie(MovieRequest request);
+    MovieResponse createMovie(MovieRequest request,MultipartFile file);
 
     PageResponse<MovieResponse> getAllMovies(int page, int size, String sortBy, String direction);
 
@@ -26,7 +28,7 @@ public interface MovieService {
 
     MovieResponse getMovieById(Integer movieId);
 
-    MovieResponse updateMovie(Integer movieId, MovieRequest request);
+    MovieResponse updateMovie(Integer movieId, MovieRequest request,MultipartFile file);
 
     void deleteMovie(Integer movieId);
 }

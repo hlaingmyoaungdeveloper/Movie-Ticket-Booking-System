@@ -33,5 +33,7 @@ public class MovieRequest {
     @Size(max = 50, message = "Status must be at most 50 characters")
     @Column(name = "status")
     private String status;
+
+    private String imageUrl;
 }
 

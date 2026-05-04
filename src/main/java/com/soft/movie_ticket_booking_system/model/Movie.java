@@ -55,6 +55,10 @@ public class Movie extends BaseEntity {
     @Column(name = "delete_flag")
     private Boolean deleteFlag = false;
 
+    private String publicId;
+    
+    private String imageUrl;
+
     @OneToMany(mappedBy = "movie")
     private Set<Show> shows = new HashSet<>();
 }

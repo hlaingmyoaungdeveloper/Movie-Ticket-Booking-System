@@ -11,4 +11,5 @@ public class MovieResponse {
     private String movieType;
     private String status;
     private Boolean deleteFlag = false;
+    private String imageUrl;
 }
