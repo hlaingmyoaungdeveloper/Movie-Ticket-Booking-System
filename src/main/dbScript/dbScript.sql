@@ -1,9 +1,9 @@
 -- =============================================
 -- 1. DATABASE CREATE & DROP IF EXISTS
 -- =============================================
-DROP DATABASE IF EXISTS movie_ticket;
-CREATE DATABASE movie_ticket;
-USE movie_ticket;
+DROP DATABASE IF EXISTS movie_ticket_booking_system;
+CREATE DATABASE movie_ticket_booking_system;
+USE movie_ticket_booking_system;
 
 -- =========================
 -- 2. MOVIES TABLE
