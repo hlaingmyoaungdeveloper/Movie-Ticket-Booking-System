@@ -10,17 +10,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.soft.movie_ticket_booking_system.dto.request.MovieRequest;
 import com.soft.movie_ticket_booking_system.dto.response.MovieResponse;
 import com.soft.movie_ticket_booking_system.dto.response.PageResponse;
+import com.soft.movie_ticket_booking_system.exception.FileStorageException;
 import com.soft.movie_ticket_booking_system.exception.ResourceNotFoundException;
 import com.soft.movie_ticket_booking_system.mapper.MovieMapper;
 import com.soft.movie_ticket_booking_system.model.Movie;
 import com.soft.movie_ticket_booking_system.repository.MovieRepository;
+import com.soft.movie_ticket_booking_system.service.CloudinaryService;
 import com.soft.movie_ticket_booking_system.service.MovieService;
 import com.soft.movie_ticket_booking_system.utils.PaginationValidator;
 
@@ -35,12 +36,12 @@ public class MovieServiceImpl implements MovieService {
             "createdBy", "createdTime", "modifiedBy", "modifiedTime");
 
     private final MovieRepository movieRepository;
-    private final Cloudinary cloudinary;
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public MovieResponse createMovie(MovieRequest request, MultipartFile file) {
         try {
-            Map uploadPhoto = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            Map uploadPhoto = cloudinaryService.uploadFile(file);
 
             String imageUrl = (String) uploadPhoto.get("secure_url");
             String publicId = (String) uploadPhoto.get("public_id");
@@ -50,8 +51,8 @@ public class MovieServiceImpl implements MovieService {
 
             Movie savedMovie = movieRepository.save(movie);
             return MovieMapper.toMovieDto(savedMovie);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create movie: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new FileStorageException("Failed to create movie", e);
         }
     }
 
@@ -76,8 +77,10 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public List<MovieResponse> findByMovieId(Integer movieId) {
-        return movieRepository.findByMovieId(movieId).stream().map(MovieMapper::toMovieDto).toList();
+    public MovieResponse findByMovieId(Integer movieId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
+        return MovieMapper.toMovieDto(movie);
     }
 
     @Override
@@ -108,13 +111,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MovieResponse getMovieById(Integer movieId) {
-        Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
-        return MovieMapper.toMovieDto(movie);
-    }
-
-    @Override
+    @Transactional
     public MovieResponse updateMovie(Integer movieId, MovieRequest request, MultipartFile file) {
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
@@ -123,15 +120,15 @@ public class MovieServiceImpl implements MovieService {
             if (file != null && !file.isEmpty()) {
                 // Delete old image
                 if (movie.getPublicId() != null) {
-                    cloudinary.uploader().destroy(movie.getPublicId(), ObjectUtils.emptyMap());
+                    cloudinaryService.deleteFile(movie.getPublicId());
                 }
                 // Upload new image
-                Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+                Map uploadResult = cloudinaryService.uploadFile(file);
                 movie.setImageUrl(uploadResult.get("secure_url").toString());
                 movie.setPublicId(uploadResult.get("public_id").toString());
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to update movie image: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new FileStorageException("Failed to update movie image", e);
         }
 
         movie.setMovieName(request.getMovieName());
@@ -145,14 +142,15 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public void deleteMovie(Integer movieId) {
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
 
         try {
-            cloudinary.uploader().destroy(movie.getPublicId(), ObjectUtils.emptyMap());
+            cloudinaryService.deleteFile(movie.getPublicId());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new FileStorageException("Failed to delete movie image", e);
         }
 
         movieRepository.delete(movie);

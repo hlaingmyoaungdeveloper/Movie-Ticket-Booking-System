@@ -9,8 +9,6 @@ import com.soft.movie_ticket_booking_system.model.Movie;
 
 public interface MovieRepository extends JpaRepository<Movie, Integer> {
 
-    List<Movie> findByMovieId(Integer movieId);
-
     List<Movie> findByMovieNameContainingIgnoreCase(String movieName);
 
     List<Movie> findByMovieDescriptionContainingIgnoreCase(String movieDescription);

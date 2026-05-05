@@ -14,7 +14,7 @@ public interface MovieService {
 
     PageResponse<MovieResponse> getAllMovies(int page, int size, String sortBy, String direction);
 
-    List<MovieResponse> findByMovieId(Integer movieId);
+    MovieResponse findByMovieId(Integer movieId);
 
     List<MovieResponse> findByMovieName(String movieName);
 
@@ -25,8 +25,6 @@ public interface MovieService {
     List<MovieResponse> findByStatus(String status);
 
     List<MovieResponse> findByDeleteFlag(Boolean deleteFlag);
-
-    MovieResponse getMovieById(Integer movieId);
 
     MovieResponse updateMovie(Integer movieId, MovieRequest request,MultipartFile file);
 
