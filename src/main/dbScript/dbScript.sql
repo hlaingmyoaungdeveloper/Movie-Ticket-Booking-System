@@ -1,6 +1,14 @@
+-- =============================================
+-- 1. DATABASE CREATE & DROP IF EXISTS
+-- =============================================
+DROP DATABASE IF EXISTS movie_ticket;
+CREATE DATABASE movie_ticket;
+USE movie_ticket;
+
 -- =========================
--- 1. MOVIES TABLE
+-- 2. MOVIES TABLE
 -- =========================
+DROP TABLE IF EXISTS movies;
 CREATE TABLE movies (
     movie_id INT PRIMARY KEY AUTO_INCREMENT,
     movie_name VARCHAR(255),
@@ -10,14 +18,15 @@ CREATE TABLE movies (
     status VARCHAR(50),
     delete_flag BOOLEAN DEFAULT FALSE,
     created_by INT,
-    created_time TIMESTAMP,
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified_by INT,
-    modified_time TIMESTAMP
+    modified_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- =========================
--- 2. SHOWS TABLE
+-- 3. SHOWS TABLE
 -- =========================
+DROP TABLE IF EXISTS shows;
 CREATE TABLE shows (
     show_id INT PRIMARY KEY AUTO_INCREMENT,
     movie_id INT,
@@ -31,14 +40,15 @@ CREATE TABLE shows (
 );
 
 -- =========================
--- 3. BOOKINGS TABLE
+-- 4. BOOKINGS TABLE
 -- =========================
+DROP TABLE IF EXISTS bookings;
 CREATE TABLE bookings (
     booking_id INT PRIMARY KEY AUTO_INCREMENT,
     customer_name VARCHAR(255),
     show_id INT,
     total_price DECIMAL(10,2),
-    booking_time TIMESTAMP,
+    booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     CONSTRAINT fk_booking_show
         FOREIGN KEY (show_id)
@@ -47,8 +57,9 @@ CREATE TABLE bookings (
 );
 
 -- =========================
--- 4. SEAT TYPES TABLE
+-- 5. SEAT TYPES TABLE
 -- =========================
+DROP TABLE IF EXISTS seat_types;
 CREATE TABLE seat_types (
     seat_type_id INT PRIMARY KEY AUTO_INCREMENT,
     seat_type_name VARCHAR(100),
@@ -56,8 +67,9 @@ CREATE TABLE seat_types (
 );
 
 -- =========================
--- 5. SEATS TABLE
+-- 6. SEATS TABLE
 -- =========================
+DROP TABLE IF EXISTS seats;
 CREATE TABLE seats (
     seat_id INT PRIMARY KEY AUTO_INCREMENT,
     seat_code VARCHAR(50),
@@ -71,8 +83,9 @@ CREATE TABLE seats (
 );
 
 -- =========================
--- 6. BOOKING_SEATS TABLE (Many-to-Many)
+-- 7. BOOKING_SEATS TABLE (Many-to-Many Relationship)
 -- =========================
+DROP TABLE IF EXISTS booking_seats;
 CREATE TABLE booking_seats (
     booking_id INT,
     seat_id INT,
