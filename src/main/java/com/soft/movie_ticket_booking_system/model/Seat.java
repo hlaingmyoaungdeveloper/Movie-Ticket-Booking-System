@@ -40,8 +40,7 @@ public class Seat {
     private SeatType seatType;
 
     @NotBlank(message = "Status is required")
-    @Size(max = 50, message = "Status must be at most 50 characters")
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private String status;
 
     @ManyToMany(mappedBy = "seats")
