@@ -50,6 +50,9 @@ public class Booking {
     @Column(name = "booking_time")
     private Instant bookingTime;
 
+    @Column(name = "qrcode")
+    private String qrcode;
+
     @ManyToMany
     @JoinTable(
             name = "booking_seats",
