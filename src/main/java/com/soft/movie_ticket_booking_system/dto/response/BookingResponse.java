@@ -13,5 +13,6 @@ public class BookingResponse {
     private Integer showId;
     private BigDecimal totalPrice;
     private Instant bookingTime;
+    private String qrCode;
     private Set<Integer> seatIds;
 }

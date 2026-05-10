@@ -3,6 +3,7 @@ package com.soft.movie_ticket_booking_system.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +16,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.soft.movie_ticket_booking_system.dto.request.BookingRequest;
+import com.soft.movie_ticket_booking_system.dto.request.QrDTO;
 import com.soft.movie_ticket_booking_system.dto.response.ApiResponse;
 import com.soft.movie_ticket_booking_system.dto.response.BookingResponse;
 import com.soft.movie_ticket_booking_system.dto.response.PageResponse;
 import com.soft.movie_ticket_booking_system.service.BookingService;
+import com.soft.movie_ticket_booking_system.utils.QRGenerater;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,20 @@ public class BookingController {
     public ResponseEntity<ApiResponse<BookingResponse>> createBooking(@Valid @RequestBody BookingRequest request) {
         BookingResponse response = bookingService.createBooking(request);
         return new ResponseEntity<>(ApiResponse.success(response, "Booking created successfully"), HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/qr/{bookingId}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getQRCode(@PathVariable Integer bookingId) {
+
+        BookingResponse booking = bookingService.findByBookingId(bookingId);
+
+        if (booking.getQrCode() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        byte[] qrImage = QRGenerater.generateQRCodeImage(booking.getQrCode(), 200, 200);
+
+        return ResponseEntity.ok(qrImage);
     }
 
     @GetMapping
@@ -66,7 +83,7 @@ public class BookingController {
 
     @PutMapping("/{bookingId}")
     public ResponseEntity<ApiResponse<BookingResponse>> updateBooking(@PathVariable Integer bookingId,
-                                                                     @Valid @RequestBody BookingRequest request) {
+            @Valid @RequestBody BookingRequest request) {
         BookingResponse response = bookingService.updateBooking(bookingId, request);
         return ResponseEntity.ok(ApiResponse.success(response, "Booking updated successfully"));
     }
@@ -75,5 +92,11 @@ public class BookingController {
     public ResponseEntity<ApiResponse<Void>> deleteBooking(@PathVariable Integer bookingId) {
         bookingService.deleteBooking(bookingId);
         return ResponseEntity.ok(ApiResponse.success(null, "Booking deleted successfully"));
+    }
+
+    @PostMapping("/check")
+    public ResponseEntity<ApiResponse<Void>> checkBooking(@Valid @RequestBody QrDTO request) {
+        bookingService.checkBooking(request);
+        return ResponseEntity.ok(ApiResponse.success(null, "Booking checked successfully"));
     }
 }

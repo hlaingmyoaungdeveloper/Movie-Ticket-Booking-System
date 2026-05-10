@@ -3,6 +3,7 @@ package com.soft.movie_ticket_booking_system.service;
 import java.util.List;
 
 import com.soft.movie_ticket_booking_system.dto.request.BookingRequest;
+import com.soft.movie_ticket_booking_system.dto.request.QrDTO;
 import com.soft.movie_ticket_booking_system.dto.response.BookingResponse;
 import com.soft.movie_ticket_booking_system.dto.response.PageResponse;
 
@@ -14,4 +15,5 @@ public interface BookingService {
     List<BookingResponse> findByShowId(Integer showId);
     BookingResponse updateBooking(Integer bookingId, BookingRequest request);
     void deleteBooking(Integer bookingId);
+    public void checkBooking(QrDTO request);
 }

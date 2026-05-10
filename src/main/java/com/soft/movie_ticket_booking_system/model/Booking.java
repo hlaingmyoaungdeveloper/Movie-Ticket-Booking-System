@@ -7,6 +7,8 @@ import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -51,7 +53,14 @@ public class Booking {
     private Instant bookingTime;
 
     @Column(name = "qrcode")
-    private String qrcode;
+    private String qrCode;
+
+    @Column(name = "is_used")
+    private boolean isUsed = false;
+
+    @Column(name = "status")
+    @Enumerated(value = EnumType.ORDINAL)
+    private Status status;
 
     @ManyToMany
     @JoinTable(

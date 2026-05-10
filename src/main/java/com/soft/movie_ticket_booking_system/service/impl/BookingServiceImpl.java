@@ -3,6 +3,7 @@ package com.soft.movie_ticket_booking_system.service.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.soft.movie_ticket_booking_system.dto.request.BookingRequest;
+import com.soft.movie_ticket_booking_system.dto.request.QrDTO;
 import com.soft.movie_ticket_booking_system.dto.response.BookingResponse;
 import com.soft.movie_ticket_booking_system.dto.response.PageResponse;
 import com.soft.movie_ticket_booking_system.exception.ResourceNotFoundException;
@@ -19,6 +21,7 @@ import com.soft.movie_ticket_booking_system.mapper.BookingMapper;
 import com.soft.movie_ticket_booking_system.model.Booking;
 import com.soft.movie_ticket_booking_system.model.Seat;
 import com.soft.movie_ticket_booking_system.model.Show;
+import com.soft.movie_ticket_booking_system.model.Status;
 import com.soft.movie_ticket_booking_system.repository.BookingRepository;
 import com.soft.movie_ticket_booking_system.repository.SeatRepository;
 import com.soft.movie_ticket_booking_system.repository.ShowRepository;
@@ -49,6 +52,8 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking booking = BookingMapper.toBooking(request, show, seats);
+        String qrCode = UUID.randomUUID().toString();
+        booking.setQrCode(qrCode);
         Booking savedBooking = bookingRepository.save(booking);
         return BookingMapper.toBookingDto(savedBooking);
     }
@@ -123,5 +128,20 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
         bookingRepository.delete(booking);
+    }
+
+
+    @Override
+    @Transactional
+    public void checkBooking(QrDTO request) {
+        Booking booking = bookingRepository.findByQrCode(request.getQrCode());
+        if(booking.isUsed() == true || booking.getStatus() == Status.CONFIRMED){
+            booking.setStatus(Status.CANCELLED);
+            bookingRepository.save(booking);
+            throw new ResourceNotFoundException("Booking is already confirmed or used");
+        }
+        booking.setStatus(Status.CONFIRMED);
+        booking.setUsed(true);
+        bookingRepository.save(booking);
     }
 }

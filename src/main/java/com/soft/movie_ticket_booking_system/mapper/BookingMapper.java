@@ -30,6 +30,7 @@ public class BookingMapper {
             response.setShowId(booking.getShow().getShowId());
         }
         response.setTotalPrice(booking.getTotalPrice());
+        response.setQrCode(booking.getQrCode());
         response.setBookingTime(booking.getBookingTime());
         if (booking.getSeats() != null) {
             response.setSeatIds(booking.getSeats().stream()
